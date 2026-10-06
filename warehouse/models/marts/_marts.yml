@@ -1,0 +1,34 @@
+version: 2
+
+models:
+  - name: fct_store_sku_daily
+    description: >
+      Modelling panel (store x SKU x day). `is_censored` marks days where the shelf emptied or had
+      nothing to sell; observed sales on those days are a lower bound on demand.
+    tests:
+      - unique_combination: {arguments: {columns: ['store_id', 'sku_id', 'date']}}
+      - share_below:
+          arguments: {condition: "is_censored and is_open", max_share: 0.25}
+    columns:
+      - name: units_sold
+        tests: [not_null, non_negative]
+      - name: regular_price
+        tests: [not_null]
+      - name: temp_max
+        tests: [not_null]
+      - name: price_ratio
+        tests: [not_null]
+  - name: fct_store_sku_future
+    tests:
+      - unique_combination: {arguments: {columns: ['store_id', 'sku_id', 'date']}}
+  - name: fct_lot_snapshot
+    columns:
+      - name: qty_on_hand
+        tests: [non_negative]
+  - name: mart_store_family_week
+    tests:
+      - unique_combination: {arguments: {columns: ['store_id', 'family', 'week_start']}}
+  - name: mart_source_coverage
+    description: Data-discovery scorecard shown on the dashboard's Data & Pipeline page.
+  - name: fct_recommendation_outcomes
+    description: Every logged recommendation joined to realised sales, waste and markdown units over the next 7 days.

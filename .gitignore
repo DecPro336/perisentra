@@ -1,0 +1,22 @@
+# environments and local settings
+.venv/
+.env
+orchestration/airflow/home/
+
+# Python / tooling caches
+__pycache__/
+*.pyc
+.pytest_cache/
+.ruff_cache/
+
+# generated data and build output
+/data/
+/exchange/
+simulator/var/
+warehouse/target/
+warehouse/logs/
+warehouse/dbt_packages/
+warehouse/.user.yml
+*.log
+
+.DS_Store

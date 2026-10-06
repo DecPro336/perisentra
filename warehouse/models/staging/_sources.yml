@@ -1,0 +1,49 @@
+version: 2
+
+sources:
+  - name: raw
+    description: Source-system extracts landed as-is by `perisentra ingest` (staged Parquet + COPY INTO).
+    schema: raw
+    config:
+      loaded_at_field: _loaded_at
+    tables:
+      - name: erp_stores
+        description: ERP store master.
+      - name: erp_products
+        description: ERP product master (UPC, family, cost, shelf life, expiry tracking flag, delivery schedule).
+      - name: erp_assortment
+        description: Store listing windows per SKU (no end date while the product is still listed).
+      - name: erp_price_history
+        description: Regular shelf price validity periods.
+      - name: erp_store_closures
+        description: Days a store is closed (public holidays), published ahead.
+      - name: erp_deliveries
+        description: Goods receipts by lot; expiry date only populated for expiry-tracked SKUs.
+      - name: erp_open_orders
+        description: Orders already placed for upcoming delivery days.
+      - name: pos_daily_sales
+        description: POS daily aggregates keyed by POS store code + UPC, one row per price type. Contains re-sent batches.
+      - name: wms_stock_movements
+        description: Stock ledger (OPENING, RECEIPT, SALE, WRITE_OFF, ADJUST).
+      - name: wms_cycle_counts
+        description: Weekly cycle counts with book quantity before adjustment.
+      - name: quality_waste_log
+        description: Manually entered waste log (free-text reasons, occasional missing values).
+      - name: marketing_promo_calendar
+        description: Weekly-ad promotions keyed by UPC with chain-wide or state scope.
+      - name: footfall_counts
+        description: Door counter feed (JSON lines); sensor outages leave gaps.
+      - name: pricing_markdown_labels
+        description: Markdown sticker / ESL override log.
+      - name: pricing_price_tests
+        description: Randomized price-test design (assigned discount per store-SKU-day, 0 = control).
+      - name: ext_weather
+        description: Open-Meteo daily weather per store location (archive + forecast).
+      - name: ext_holidays
+        description: Public holidays (Nager.Date API).
+      - name: app_recommendation_log
+        description: Every recommendation the engine issued (with model / rules versions and exploration propensity).
+      - name: app_store_decisions
+        description: >
+          What stores did with recommendations: task-list items reported by the store app (accepted / not applied)
+          and decisions logged in the dashboard (accepted / overridden / rejected).

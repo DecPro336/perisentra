@@ -1,0 +1,40 @@
+forecast:
+  horizon_days: 7
+  tweedie_variance_power: 1.25
+  em_iterations: 2                   # censored-demand EM passes
+  calibration_weeks: 8               # split-conformal calibration window
+  interval_levels: [0.80, 0.95]
+  lightgbm:
+    objective: tweedie
+    learning_rate: 0.06
+    num_leaves: 127
+    min_data_in_leaf: 200
+    feature_fraction: 0.85
+    bagging_fraction: 0.7
+    bagging_freq: 1
+    lambda_l2: 1.0
+    max_bin: 127
+    num_boost_round: 700
+    early_stopping_rounds: 50
+    verbose: -1
+  weather_ablation:
+    min_wape_gain_pct: 0.4           # keep weather for a family only if it lowers WAPE by at least this
+    sample_months: 9
+
+backtest:
+  origins: ["2026-01-05", "2026-02-02", "2026-05-04", "2026-06-01"]
+  horizon_days: 28
+
+elasticity:
+  draws: 700
+  tune: 800
+  chains: 4
+  target_accept: 0.95
+
+risk:
+  n_paths: 600               # Monte Carlo demand paths per candidate action
+  stockout_alert: 0.30       # flag a stock-out risk above this probability before the next delivery
+
+monitoring:
+  reference_weeks: 8
+  current_weeks: 4

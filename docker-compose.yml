@@ -1,0 +1,74 @@
+# docker compose up --build              -> API (8000), dashboard (3000), MLflow UI (5000)
+# docker compose --profile orchestration up --build   -> + Airflow (8080, user/password printed in its log)
+#
+# Warehouse: Snowflake, with the settings from .env and the service user's private key mounted read-only from
+# ~/.snowflake (set PERISENTRA_DBT_TARGET=duckdb in .env to use the offline copy instead).
+# Local files live on the host: ./exchange (the retailer's deliveries and the stores' task lists), ./data (models,
+# MLflow store, serving tables) and simulator/var (the simulated retailer's state). Create them once with
+# `make bootstrap`; the Airflow service then keeps both systems running day by day.
+
+x-snowflake: &snowflake
+  env_file:
+    - path: .env
+      required: false
+
+services:
+  api:
+    <<: *snowflake
+    build: .
+    image: perisentra/api:1.0
+    command: ["perisentra", "serve", "--host", "0.0.0.0", "--port", "8000"]
+    environment:
+      PERISENTRA_DATA_DIR: /app/data
+      PERISENTRA_MLFLOW_UI: http://localhost:5000
+      SNOWFLAKE_PRIVATE_KEY_PATH: /run/secrets/snowflake/perisentra_rsa_key.p8
+    volumes:
+      - ./data:/app/data
+      - ./exchange:/app/exchange
+      - ./configs:/app/configs
+      - ${HOME}/.snowflake:/run/secrets/snowflake:ro
+    ports: ["8000:8000"]
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/api/health')"]
+      interval: 20s
+      timeout: 5s
+      retries: 5
+
+  dashboard:
+    build: ./dashboard
+    image: perisentra/dashboard:1.0
+    environment:
+      API_URL: http://api:8000
+    ports: ["3000:3000"]
+    depends_on: [api]
+
+  mlflow:
+    image: perisentra/api:1.0
+    command: ["mlflow", "ui", "--backend-store-uri", "sqlite:////app/data/mlflow/mlflow.db", "--host", "0.0.0.0", "--port", "5000"]
+    environment:
+      PYTHONWARNINGS: "ignore::UserWarning:mlflow.server.fastapi_app"
+    volumes:
+      - ./data:/app/data
+    ports: ["5000:5000"]
+    depends_on: [api]
+
+  airflow:
+    <<: *snowflake
+    profiles: ["orchestration"]
+    build:
+      context: .
+      dockerfile: orchestration/airflow/Dockerfile
+    image: perisentra/airflow:1.0
+    command: ["airflow", "standalone"]
+    environment:
+      AIRFLOW__CORE__LOAD_EXAMPLES: "false"
+      AIRFLOW__CORE__DAGS_FOLDER: /opt/perisentra/project/orchestration/airflow/dags
+      AIRFLOW__CORE__DEFAULT_TIMEZONE: America/New_York
+      SNOWFLAKE_PRIVATE_KEY_PATH: /run/secrets/snowflake/perisentra_rsa_key.p8
+    volumes:
+      - ./data:/opt/perisentra/project/data
+      - ./exchange:/opt/perisentra/project/exchange
+      - ./simulator/var:/opt/perisentra/project/simulator/var
+      - ${HOME}/.snowflake:/run/secrets/snowflake:ro
+      - ./orchestration/airflow/dags:/opt/perisentra/project/orchestration/airflow/dags
+    ports: ["8080:8080"]

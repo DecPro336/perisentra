@@ -1,0 +1,77 @@
+version: 2
+
+models:
+  - name: stg_stores
+    columns:
+      - name: store_id
+        tests: [unique, not_null]
+      - name: pos_code
+        tests: [unique, not_null]
+      - name: store_format
+        tests:
+          - accepted_values: {arguments: {values: ['supercenter', 'supermarket', 'neighborhood']}}
+  - name: stg_products
+    columns:
+      - name: sku_id
+        tests: [unique, not_null]
+      - name: upc
+        tests: [unique, not_null]
+      - name: shelf_life_days
+        tests: [not_null, non_negative]
+      - name: delivery_schedule
+        tests:
+          - not_null
+          - accepted_values: {arguments: {values: ['daily', 'mon_wed_fri', 'in_store_bake']}}
+  - name: stg_store_closures
+    description: Holiday closures by store and day.
+    tests:
+      - unique_combination: {arguments: {columns: ['store_id', 'closure_date']}}
+    columns:
+      - name: store_id
+        tests:
+          - not_null
+          - relationships: {arguments: {to: ref('stg_stores'), field: store_id}}
+      - name: closure_date
+        tests: [not_null]
+  - name: stg_pos_sales
+    description: POS sales deduplicated across re-sent batches and mapped to internal keys.
+    tests:
+      - unique_combination: {arguments: {columns: ['sale_date', 'store_code', 'upc', 'price_type']}}
+    columns:
+      - name: store_id
+        tests:
+          - not_null
+          - relationships: {arguments: {to: ref('stg_stores'), field: store_id}}
+      - name: sku_id
+        tests:
+          - not_null
+          - relationships: {arguments: {to: ref('stg_products'), field: sku_id}}
+      - name: price_type
+        tests:
+          - accepted_values: {arguments: {values: ['REG', 'PROMO', 'MD']}}
+      - name: units
+        tests: [non_negative]
+  - name: stg_stock_movements
+    columns:
+      - name: movement_type
+        tests:
+          - accepted_values: {arguments: {values: ['OPENING', 'RECEIPT', 'SALE', 'WRITE_OFF', 'ADJUST']}}
+  - name: stg_waste_log
+    columns:
+      - name: reason
+        tests:
+          - accepted_values: {arguments: {values: ['EXPIRED', 'DAMAGED', 'DONATED']}}
+      - name: quantity
+        tests: [non_negative]
+  - name: stg_promotions
+    columns:
+      - name: sku_id
+        tests: [not_null]
+      - name: promo_pct
+        tests: [not_null]
+  - name: stg_holidays
+    tests:
+      - unique_combination: {arguments: {columns: ['holiday_date', 'holiday_name']}}
+  - name: stg_weather
+    tests:
+      - unique_combination: {arguments: {columns: ['store_id', 'weather_date']}}

@@ -1,0 +1,29 @@
+# The retailer this Perisentra deployment serves. Everything Perisentra knows about the client's operations
+# (stores, products, delivery schedules, closures, sales, stock) arrives as data in exchange/inbound; this file
+# only holds what was agreed with the client.
+
+client:
+  name: "Fernbrook Market"
+  country: US                    # public-holiday calendar (Nager.Date) and weather units
+  currency: USD
+  timezone: America/New_York
+
+# The stores' current ordering process, as documented with the client's store operations team. Perisentra's
+# forecasts are benchmarked against it (the markdown side of the current rule is in business_rules.yaml: legacy).
+current_rule:
+  ordering_forecast:
+    window_days: 14                                         # recent-sales average ...
+    weekday_factors: [0.90, 0.88, 0.92, 0.95, 1.08, 1.22, 1.10]   # ... times the chain's weekday pattern (Mon..Sun)
+    same_weekday_weight: 0.6                                # blended with the same weekday over the last 3 weeks
+
+# The pilot agreed with the client: treatment stores receive the daily task list, matched controls do not.
+pilot:
+  start: 2026-07-06
+  end: 2026-08-30
+  pre_weeks: 8
+  quota_by_format: {supercenter: 2, supermarket: 3, neighborhood: 1}
+  design_seed: 20260706
+
+# Stores that receive the daily task list (exchange/outbound/store_tasks). "pilot" = the pilot's treatment stores.
+deployment:
+  live_stores: pilot

@@ -1,0 +1,25 @@
+version: 2
+
+models:
+  - name: int_calendar
+    columns:
+      - name: date_day
+        tests: [unique, not_null]
+  - name: int_series_calendar
+    tests:
+      - unique_combination: {arguments: {columns: ['store_id', 'sku_id', 'date_day']}}
+  - name: int_stock_daily
+    description: Book stock rebuilt from the movement ledger. Small negative balances reveal unrecorded shrink until the next cycle count.
+    tests:
+      - share_below:
+          arguments: {condition: "closing_stock < 0", max_share: 0.02}
+          config: {severity: warn}
+  - name: int_promo_daily
+    tests:
+      - unique_combination: {arguments: {columns: ['store_id', 'sku_id', 'date_day']}}
+  - name: int_lots
+    columns:
+      - name: lot_id
+        tests: [unique, not_null]
+      - name: expiry_date
+        tests: [not_null]

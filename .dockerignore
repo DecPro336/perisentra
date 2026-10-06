@@ -1,0 +1,17 @@
+# local settings and environments: never baked into images
+.env
+.venv
+orchestration/airflow/.venv
+orchestration/airflow/home
+# generated
+data
+exchange
+simulator/var
+dashboard
+**/__pycache__
+**/.pytest_cache
+.ruff_cache
+warehouse/target
+warehouse/logs
+warehouse/.user.yml
+.git

@@ -1,0 +1,22 @@
+# Snowflake is the warehouse; `duckdb` is an offline copy with the same models (tests, no network).
+# PERISENTRA_DBT_TARGET and the SNOWFLAKE_* settings come from .env (see warehouse/snowflake/README.md).
+# Authentication is key-pair (service user), never a password.
+perisentra:
+  target: "{{ env_var('PERISENTRA_DBT_TARGET', 'snowflake') }}"
+  outputs:
+    snowflake:
+      type: snowflake
+      account: "{{ env_var('SNOWFLAKE_ACCOUNT', 'unset') }}"
+      user: "{{ env_var('SNOWFLAKE_USER', 'PERISENTRA_SVC') }}"
+      private_key_path: "{{ env_var('SNOWFLAKE_PRIVATE_KEY_PATH', 'unset') | replace('~', env_var('HOME', '~')) }}"
+      role: "{{ env_var('SNOWFLAKE_ROLE', 'TRANSFORMER') }}"
+      database: "{{ env_var('SNOWFLAKE_DATABASE', 'PERISENTRA') }}"
+      warehouse: "{{ env_var('SNOWFLAKE_WAREHOUSE', 'TRANSFORM_WH') }}"
+      schema: ANALYTICS
+      threads: 8
+      query_tag: perisentra-dbt
+    duckdb:
+      type: duckdb
+      path: "{{ env_var('PERISENTRA_WAREHOUSE', '../data/warehouse/perisentra.duckdb') }}"
+      schema: main
+      threads: 4

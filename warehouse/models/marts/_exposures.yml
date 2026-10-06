@@ -1,0 +1,14 @@
+version: 2
+
+exposures:
+  - name: perisentra_decision_api
+    type: application
+    maturity: high
+    owner: {name: Perisentra data team}
+    description: FastAPI service and dashboard serving daily recommendations with reason codes.
+    depends_on:
+      - ref('fct_store_sku_daily')
+      - ref('fct_store_sku_future')
+      - ref('fct_lot_snapshot')
+      - ref('mart_store_family_week')
+      - ref('mart_source_coverage')

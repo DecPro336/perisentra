@@ -1,0 +1,123 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
+
+/* ------------------------------------------------------------------------------------------
+   Design tokens. Chart colors follow the validated reference palette (dataviz skill):
+   categorical slots in fixed order, a single-hue sequential ramp, reserved status colors.
+   ------------------------------------------------------------------------------------------ */
+:root {
+  color-scheme: light;
+  --page: #f6f6f3;
+  --surface: #fcfcfb;
+  --surface-2: #f2f1ed;
+  --surface-3: #e9e8e2;
+  --border: rgba(11, 11, 11, 0.09);
+  --border-strong: rgba(11, 11, 11, 0.16);
+  --ink: #0b0b0b;
+  --ink-2: #52514e;
+  --ink-3: #6e6c66;
+  --grid: #e1e0d9;
+  --axis: #c3c2b7;
+  --brand: #0d6b57;
+  --brand-ink: #ffffff;
+  --brand-soft: #e3f1ec;
+  --focus: #2a78d6;
+
+  --series-1: #2a78d6;
+  --series-2: #eb6834;
+  --series-3: #1baf7a;
+  --series-4: #eda100;
+  --series-5: #e87ba4;
+  --series-6: #008300;
+  --series-7: #4a3aa7;
+  --series-8: #e34948;
+  --muted-series: #b8b6ad;
+
+  --seq-100: #cde2fb; --seq-200: #9ec5f4; --seq-300: #6da7ec; --seq-400: #3987e5;
+  --seq-500: #256abf; --seq-600: #184f95; --seq-700: #0d366b;
+  --div-neg: #e34948; --div-mid: #f0efec; --div-pos: #2a78d6;
+
+  --good: #0ca30c; --good-ink: #006300; --good-soft: #e5f5e5;
+  --warning: #fab219; --warning-ink: #7a5300; --warning-soft: #fdf3dc;
+  --serious: #ec835a; --serious-ink: #9a3d17; --serious-soft: #fcebe3;
+  --critical: #d03b3b; --critical-ink: #a32424; --critical-soft: #f9e3e3;
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --page: #0d0d0d;
+  --surface: #1a1a19;
+  --surface-2: #222220;
+  --surface-3: #2c2c2a;
+  --border: rgba(255, 255, 255, 0.09);
+  --border-strong: rgba(255, 255, 255, 0.16);
+  --ink: #ffffff;
+  --ink-2: #c3c2b7;
+  --ink-3: #9a988f;
+  --grid: #2c2c2a;
+  --axis: #383835;
+  --brand: #2fb58f;
+  --brand-ink: #06231b;
+  --brand-soft: #11302a;
+  --focus: #3987e5;
+
+  --series-1: #3987e5;
+  --series-2: #d95926;
+  --series-3: #199e70;
+  --series-4: #c98500;
+  --series-5: #d55181;
+  --series-6: #008300;
+  --series-7: #9085e9;
+  --series-8: #e66767;
+  --muted-series: #5a5954;
+
+  --seq-100: #0d366b; --seq-200: #104281; --seq-300: #184f95; --seq-400: #1c5cab;
+  --seq-500: #2a78d6; --seq-600: #5598e7; --seq-700: #9ec5f4;
+  --div-neg: #e66767; --div-mid: #383835; --div-pos: #3987e5;
+
+  --good: #0ca30c; --good-ink: #4cd04c; --good-soft: #10260f;
+  --warning: #fab219; --warning-ink: #fab219; --warning-soft: #2b2310;
+  --serious: #ec835a; --serious-ink: #f29a76; --serious-soft: #2e1c14;
+  --critical: #d03b3b; --critical-ink: #ef7272; --critical-soft: #301616;
+}
+
+@theme inline {
+  --color-page: var(--page);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-surface-3: var(--surface-3);
+  --color-border: var(--border);
+  --color-border-strong: var(--border-strong);
+  --color-ink: var(--ink);
+  --color-ink-2: var(--ink-2);
+  --color-ink-3: var(--ink-3);
+  --color-brand: var(--brand);
+  --color-brand-ink: var(--brand-ink);
+  --color-brand-soft: var(--brand-soft);
+  --color-good: var(--good);
+  --color-good-ink: var(--good-ink);
+  --color-good-soft: var(--good-soft);
+  --color-warning: var(--warning);
+  --color-warning-ink: var(--warning-ink);
+  --color-warning-soft: var(--warning-soft);
+  --color-serious: var(--serious);
+  --color-serious-ink: var(--serious-ink);
+  --color-serious-soft: var(--serious-soft);
+  --color-critical: var(--critical);
+  --color-critical-ink: var(--critical-ink);
+  --color-critical-soft: var(--critical-soft);
+  --color-series-1: var(--series-1);
+  --color-series-2: var(--series-2);
+  --color-series-3: var(--series-3);
+  --font-sans: var(--font-inter), system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+
+html, body { background: var(--page); color: var(--ink); }
+body { font-feature-settings: "cv11", "ss01"; -webkit-font-smoothing: antialiased; }
+.tabular { font-variant-numeric: tabular-nums; }
+::selection { background: color-mix(in oklab, var(--brand) 25%, transparent); }
+*:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; border-radius: 4px; }
+.scroll-thin::-webkit-scrollbar { width: 8px; height: 8px; }
+.scroll-thin::-webkit-scrollbar-thumb { background: var(--surface-3); border-radius: 8px; }
+@media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }

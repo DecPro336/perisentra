@@ -1,0 +1,96 @@
+# Fernbrook Market: the retailer's world and source systems, simulated.
+# Every store, product and sale is fictional; weather and US public holidays are real (Open-Meteo, Nager.Date),
+# so demand reacts to real-world conditions. Perisentra never reads this file: it only sees the extracts the
+# simulator delivers to the exchange folder, like it would see a real retailer's ERP, POS and WMS exports.
+
+seed: 20260706
+chain_name: "Fernbrook Market"
+country: US
+
+calendar:
+  warmup_days: 35            # simulated but not exported (fills shelves, AR state, store-rule forecasts)
+  start_date: 2024-09-02     # first day of exported history
+  catalog_reference_date: 2026-10-01      # recent product launches are placed relative to this date
+  sequential_promotions_until: 2026-10-22  # promotions up to here were drawn as one sequence when the history
+                                           # was generated; later weeks use one random stream per week
+  closed_holidays: ["12-25"]                 # fixed dates (MM-DD) when every store is closed
+  closed_holiday_names: ["Thanksgiving Day"]  # moving holidays (Nager.Date names) when stores are closed
+
+price_test:                   # the randomized discount test the chain ran in spring 2026 (3 stores, 6 weeks)
+  n_stores: 3
+  start: 2026-03-02
+  end: 2026-04-12
+  share_of_sku_days: 0.35
+  discount_levels: [10, 20, 30, 40]
+
+stores_behaviour:
+  task_compliance: 0.9        # share of the daily task-list items (Perisentra's recommendations) stores carry out
+
+legacy_policy:                 # what stores do without a task list: their current rule
+  markdown_pct: 30             # flat "manager's special" discount ...
+  trigger_days_to_expiry: 1    # ... when units are sold by today or tomorrow
+  forecast_window_days: 14
+  safety_factor: {short: 0.12, medium: 0.16, long: 0.25}   # by shelf life <=2, <=6, >6 days
+
+world:
+  n_skus: 220
+  ar_phi: 0.75
+  ar_sigma: 0.09
+  store_shock_sigma: 0.06
+  shortship_prob: 0.04
+  unrecorded_shrink_rate: 0.0015
+  damage_rate: 0.0012
+  waste_log_miss_rate: 0.03
+  footfall_outage_rate: 0.015
+  pos_duplicate_rate: 0.003
+  inflation_step: {date: 2025-03-01, pct: 2.5}
+  weather:                     # thresholds for the hidden weather effect (imperial units)
+    temp_base_f: 64
+    hot_threshold_f: 77
+    rain_threshold_in: 0.2
+  competitor_openings:         # step changes in footfall that the model must pick up
+    - {store_id: 9, date: 2026-02-02, effect: -0.12}
+    - {store_id: 16, date: 2025-11-03, effect: -0.08}
+
+formats:
+  supercenter:  {assortment: 1.00, volume: 1.70, sunday: 1.0, footfall: 6000, surface_sqft: 90000}
+  supermarket:  {assortment: 0.85, volume: 1.00, sunday: 1.0, footfall: 2800, surface_sqft: 45000}
+  neighborhood: {assortment: 0.55, volume: 0.50, sunday: 1.0, footfall: 1300, surface_sqft: 12000}
+
+# summer: demand shift from June to August (college towns empty out, lake towns fill up)
+stores:
+  - {id: 1,  name: "Columbus Short North",   city: Columbus,      region: Ohio,      format: supermarket,  lat: 39.979, lon: -83.003}
+  - {id: 2,  name: "Columbus Clintonville",  city: Columbus,      region: Ohio,      format: neighborhood, lat: 40.034, lon: -83.019}
+  - {id: 3,  name: "Dublin Bridge Park",     city: Dublin,        region: Ohio,      format: supercenter,  lat: 40.100, lon: -83.114}
+  - {id: 4,  name: "Cincinnati Hyde Park",   city: Cincinnati,    region: Ohio,      format: supermarket,  lat: 39.138, lon: -84.444}
+  - {id: 5,  name: "Lakewood Detroit Ave",   city: Lakewood,      region: Ohio,      format: supermarket,  lat: 41.482, lon: -81.799}
+  - {id: 6,  name: "Akron Fairlawn",         city: Akron,         region: Ohio,      format: supercenter,  lat: 41.128, lon: -81.610}
+  - {id: 7,  name: "Ann Arbor Kerrytown",    city: Ann Arbor,     region: Michigan,  format: supermarket,  lat: 42.284, lon: -83.746, summer: -0.16}
+  - {id: 8,  name: "Detroit Midtown",        city: Detroit,       region: Michigan,  format: neighborhood, lat: 42.351, lon: -83.061}
+  - {id: 9,  name: "Grand Rapids Eastown",   city: Grand Rapids,  region: Michigan,  format: supercenter,  lat: 42.955, lon: -85.625}
+  - {id: 10, name: "Traverse City Front St", city: Traverse City, region: Michigan,  format: supermarket,  lat: 44.763, lon: -85.621, summer: 0.18}
+  - {id: 11, name: "Indianapolis Broad Ripple", city: Indianapolis, region: Indiana, format: supermarket, lat: 39.869, lon: -86.142}
+  - {id: 12, name: "Carmel Arts District",   city: Carmel,        region: Indiana,   format: supercenter,  lat: 39.979, lon: -86.128}
+  - {id: 13, name: "Bloomington Kirkwood",   city: Bloomington,   region: Indiana,   format: supermarket,  lat: 39.167, lon: -86.534, summer: -0.18}
+  - {id: 14, name: "Chicago Lincoln Park",   city: Chicago,       region: Illinois,  format: neighborhood, lat: 41.921, lon: -87.648}
+  - {id: 15, name: "Naperville Riverwalk",   city: Naperville,    region: Illinois,  format: supercenter,  lat: 41.773, lon: -88.149}
+  - {id: 16, name: "Evanston Central St",    city: Evanston,      region: Illinois,  format: supermarket,  lat: 42.064, lon: -87.700, summer: -0.08}
+  - {id: 17, name: "Milwaukee Bay View",     city: Milwaukee,     region: Wisconsin, format: supermarket,  lat: 42.987, lon: -87.899}
+  - {id: 18, name: "Madison Willy St",       city: Madison,       region: Wisconsin, format: supermarket,  lat: 43.083, lon: -89.367, summer: -0.15}
+  - {id: 19, name: "Sturgeon Bay Harbor",    city: Sturgeon Bay,  region: Wisconsin, format: neighborhood, lat: 44.834, lon: -87.377, summer: 0.22}
+  - {id: 20, name: "Toledo Westgate",        city: Toledo,        region: Ohio,      format: supercenter,  lat: 41.663, lon: -83.643}
+
+# Family-level ground truth. `elasticity` is the true mean price elasticity (|%Δdemand / %Δprice|);
+# weather terms (per °F): temp above temp_base_f, hot above hot_threshold_f, rain when precipitation > rain_threshold_in.
+families:
+  Bakery:              {share: 0.11, shelf: [1, 2],   base: 9.0, elasticity: 1.6, cost_ratio: 0.38, price: [1.99, 6.99],  k: 80, temp: 0.000,  hot: 0.000,  rain: -0.04, season_amp: 0.04, expiry_tracked: 0.0, pack: [1, 1], delivery: daily}
+  Produce:             {share: 0.14, shelf: [3, 6],   base: 6.0, elasticity: 1.9, cost_ratio: 0.55, price: [0.99, 5.99],  k: 20, temp: 0.0056, hot: 0.0056, rain: -0.05, season_amp: 0.10, expiry_tracked: 0.0, pack: [1, 6], delivery: daily}
+  Salads & Fresh-Cut:  {share: 0.08, shelf: [4, 6],   base: 3.2, elasticity: 1.7, cost_ratio: 0.48, price: [2.49, 6.99],  k: 14, temp: 0.0122, hot: 0.0111, rain: -0.03, season_amp: 0.18, expiry_tracked: 1.0, pack: [2, 6], delivery: daily}
+  Dairy:               {share: 0.12, shelf: [10, 18], base: 4.0, elasticity: 1.2, cost_ratio: 0.58, price: [1.49, 6.49],  k: 25, temp: 0.0017, hot: 0.000,  rain: -0.02, season_amp: 0.04, expiry_tracked: 1.0, pack: [4, 8], delivery: mwf}
+  Cheese:              {share: 0.08, shelf: [10, 20], base: 2.4, elasticity: 1.1, cost_ratio: 0.56, price: [2.99, 8.99],  k: 14, temp: -0.0033, hot: 0.000, rain: 0.00,  season_amp: 0.10, expiry_tracked: 0.8, pack: [3, 6], delivery: mwf}
+  Meat:                {share: 0.09, shelf: [3, 6],   base: 3.0, elasticity: 1.5, cost_ratio: 0.62, price: [4.99, 16.99], k: 12, temp: 0.0022, hot: 0.0167, rain: -0.06, season_amp: 0.08, expiry_tracked: 1.0, pack: [2, 4], delivery: daily}
+  Seafood:             {share: 0.06, shelf: [2, 4],   base: 2.0, elasticity: 1.8, cost_ratio: 0.60, price: [6.99, 19.99], k: 9,  temp: 0.000,  hot: 0.000,  rain: -0.04, season_amp: 0.06, expiry_tracked: 1.0, pack: [1, 2], delivery: daily}
+  Prepared Foods:      {share: 0.10, shelf: [3, 6],   base: 3.0, elasticity: 2.1, cost_ratio: 0.50, price: [4.99, 12.99], k: 14, temp: -0.0056, hot: 0.000, rain: 0.03,  season_amp: 0.10, expiry_tracked: 1.0, pack: [2, 4], delivery: daily}
+  Deli Meats:          {share: 0.08, shelf: [7, 14],  base: 3.0, elasticity: 1.3, cost_ratio: 0.57, price: [3.99, 8.99],  k: 18, temp: 0.0022, hot: 0.0033, rain: -0.02, season_amp: 0.05, expiry_tracked: 1.0, pack: [2, 6], delivery: mwf}
+  Pastries & Desserts: {share: 0.08, shelf: [2, 4],   base: 2.4, elasticity: 1.9, cost_ratio: 0.42, price: [2.99, 12.99], k: 10, temp: 0.0022, hot: -0.0033, rain: -0.03, season_amp: 0.08, expiry_tracked: 0.5, pack: [1, 4], delivery: daily}
+  Fresh Juice:         {share: 0.06, shelf: [5, 9],   base: 2.4, elasticity: 1.4, cost_ratio: 0.52, price: [2.99, 6.99],  k: 14, temp: 0.0139, hot: 0.0139, rain: -0.03, season_amp: 0.15, expiry_tracked: 1.0, pack: [2, 6], delivery: daily}
